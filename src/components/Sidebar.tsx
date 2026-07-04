@@ -87,8 +87,8 @@ export const Sidebar = ({ onSearchClick }: { onSearchClick?: () => void }) => {
         </div>
 
         <div className="pt-6 border-t border-[#1a1a1a]">
-          <a href="mailto:contact@example.com" className="font-mono text-xs text-[#888888] hover:text-[#e5e5e5] lowercase transition-colors">
-            contact@example.com
+          <a href="mailto:frandilbertperuso@gmail.com" className="font-mono text-xs text-[#888888] hover:text-[#e5e5e5] lowercase transition-colors">
+            frandilbertperuso@gmail.com
           </a>
         </div>
       </div>
