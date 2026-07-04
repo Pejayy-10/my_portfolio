@@ -1,4 +1,6 @@
 import { ProjectCard, ProjectType } from "@/components/ProjectCard";
+import { WorkHistory } from "@/components/WorkHistory";
+import { CommitGrid } from "@/components/CommitGrid";
 
 const mockProjects: ProjectType[] = [
   {
@@ -15,9 +17,9 @@ const mockProjects: ProjectType[] = [
 
 export default function Home() {
   return (
-    <div className="p-16 max-w-5xl">
+    <div className="p-16 max-w-5xl mx-auto">
       {/* Section 01: Hero Intro & Metrics */}
-      <section className="mb-24">
+      <section className="mb-32">
         <h2 className="font-mono text-[#888888] text-sm lowercase mb-6">01 // operational bio</h2>
         <p className="font-sans text-xl leading-relaxed text-[#e5e5e5] mb-8 max-w-3xl">
           I'm a software engineer and UI/UX designer. I build offline-first systems, multi-tenant SaaS applications, and modern digital ecosystems. Currently focused on deep cloud integration architectures and custom edge network infrastructures.
@@ -27,7 +29,7 @@ export default function Home() {
         </p>
 
         {/* Verifiable Structural Metrics Grid */}
-        <div className="grid grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
             <div className="font-mono text-2xl text-[#e5e5e5] lowercase">4+ Yrs</div>
             <div className="font-mono text-xs text-[#888888] lowercase mt-1">Freelance Web & Multimedia Delivery</div>
@@ -50,11 +52,23 @@ export default function Home() {
       {/* Section 02: Core Engineering & Architecture Case Studies */}
       <section className="mb-32">
         <h2 className="font-mono text-[#888888] text-sm lowercase mb-8">02 — projects</h2>
-        <div className="relative h-[320px]">
+        <div className="relative h-[280px]">
           {mockProjects.map((project, i) => (
             <ProjectCard key={project.title} project={project} index={i} />
           ))}
         </div>
+      </section>
+
+      {/* Section 03: Professional Experience History */}
+      <section className="mb-32">
+        <h2 className="font-mono text-[#888888] text-sm lowercase mb-12">03 — professional experience</h2>
+        <WorkHistory />
+      </section>
+
+      {/* Section 04: GitHub Contribution Sync */}
+      <section className="mb-16">
+        <h2 className="font-mono text-[#888888] text-sm lowercase mb-8">04 — activity verification</h2>
+        <CommitGrid />
       </section>
     </div>
   );

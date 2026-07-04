@@ -1,4 +1,38 @@
-export const LiveIndicator = ({ count }: { count: number }) => {
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { getViews, incrementViews } from "@/actions/metrics";
+
+export const LiveIndicator = () => {
+  const [count, setCount] = useState<number>(0);
+
+  useEffect(() => {
+    // Initial fetch and increment
+    const init = async () => {
+      await incrementViews();
+      const initialCount = await getViews();
+      setCount(initialCount);
+    };
+    init();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel("schema-db-changes")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "metrics", filter: "id=eq.1" },
+        (payload) => {
+          setCount(payload.new.views);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   return (
     <div className="flex items-center space-x-3 p-2 bg-[#141414] border border-[#1a1a1a] rounded-md">
       <div className="relative flex h-2 w-2">
@@ -6,7 +40,7 @@ export const LiveIndicator = ({ count }: { count: number }) => {
         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
       </div>
       <span className="font-mono text-xs text-[#888888] lowercase">
-        {count} people viewing now
+        {count > 0 ? `${count} people viewing now` : "loading telemetry..."}
       </span>
     </div>
   );
@@ -49,7 +83,7 @@ export const Sidebar = ({ onSearchClick }: { onSearchClick?: () => void }) => {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
             <span className="font-mono text-xs lowercase">Zamboanga Peninsula, PH</span>
           </div>
-          <LiveIndicator count={51} />
+          <LiveIndicator />
         </div>
 
         <div className="pt-6 border-t border-[#1a1a1a]">
