@@ -1,23 +1,58 @@
-import React from "react";
-
-const history = [
-  {
-    role: "Freelance Full-Stack Developer & Multimedia Designer",
-    company: "Independent",
-    tenure: "4-Year Tenure",
-    description: "Delivered multi-tenant web platforms, corporate branding assets, and high-impact kinetic motion graphics sequences.",
-    skills: ["TypeScript", "Next.js", "Supabase", "Motion Graphics"]
-  },
-  {
-    role: "UI/UX Designer (Part-Time Contract)",
-    company: "Creative Design Studio",
-    tenure: "1-Year Tenure",
-    description: "Designed responsive digital architectures and production-ready design systems using advanced Figma pipelines.",
-    skills: ["Figma", "Design Systems", "Prototyping", "UI/UX"]
-  }
-];
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 export const WorkHistory = () => {
+  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      const { data: expData } = await supabase
+        .from("portfolio_experience")
+        .select(`
+          *,
+          portfolio_experience_roles (*)
+        `)
+        .order("created_at", { ascending: false });
+
+      if (expData) {
+        const items: any[] = [];
+        expData.forEach((exp) => {
+          exp.portfolio_experience_roles?.forEach((role: any) => {
+            items.push({
+              role: role.title,
+              company: exp.name,
+              tenure: role.period,
+              description: role.description?.[0] || "",
+              skills: role.skills || []
+            });
+          });
+        });
+        setHistory(items);
+      }
+      setLoading(false);
+    };
+
+    fetchHistory();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="py-8 text-center text-xs font-mono text-[#555] lowercase animate-pulse">
+        loading experience logs...
+      </div>
+    );
+  }
+
+  if (history.length === 0) {
+    return (
+      <div className="py-8 text-center text-xs font-mono text-[#555] lowercase">
+        no experience logs found.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-12 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-[#1a1a1a] before:to-transparent">
       {history.map((item, i) => (
@@ -38,7 +73,7 @@ export const WorkHistory = () => {
               {item.description}
             </p>
             <div className="flex flex-wrap gap-2">
-              {item.skills.map((skill) => (
+              {item.skills.map((skill: string) => (
                 <span key={skill} className="font-mono text-xs lowercase text-[#555555] border border-[#1a1a1a] px-2 py-1 rounded">
                   {skill}
                 </span>

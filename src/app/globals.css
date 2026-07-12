@@ -156,3 +156,13 @@ body {
 .halftone-container:hover .halftone-dot-pattern {
   opacity: 0;
 }
+
+/* Coming Soon grid backdrop */
+.coming-soon-grid {
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+.light .coming-soon-grid {
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+}

@@ -1,6 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { supabase } from "@/lib/supabase";
+import { useAdmin } from "@/hooks/useAdmin";
+import { EditableText } from "@/components/EditableText";
 
 // Custom Abstract SVG Logos for Placeholder Issuers
 const LogoAlpha = () => (
@@ -39,159 +44,6 @@ const LogoEpsilon = () => (
   </svg>
 );
 
-interface Certification {
-  id: string;
-  title: string;
-  issuer: string;
-  logo: () => React.ReactNode;
-  rotation: string;
-}
-
-interface CertCategory {
-  name: string;
-  items: Certification[];
-}
-
-const certificationCategories: CertCategory[] = [
-  {
-    name: "AI",
-    items: [
-      {
-        id: "ai-1",
-        title: "Generative Models Specialist",
-        issuer: "PLATFORM ALPHA",
-        logo: LogoAlpha,
-        rotation: "-rotate-1 sm:-rotate-[1.5deg]",
-      },
-      {
-        id: "ai-2",
-        title: "Neural Networks Practitioner",
-        issuer: "ACADEMY BETA",
-        logo: LogoBeta,
-        rotation: "rotate-1 sm:rotate-[1.2deg]",
-      },
-      {
-        id: "ai-3",
-        title: "Cognitive Systems Engineering",
-        issuer: "INSTITUTE GAMMA",
-        logo: LogoGamma,
-        rotation: "-rotate-1 sm:-rotate-[0.8deg]",
-      },
-      {
-        id: "ai-4",
-        title: "Vector Database Architect",
-        issuer: "REGISTRY DELTA",
-        logo: LogoDelta,
-        rotation: "rotate-2 sm:rotate-[1.8deg]",
-      },
-      {
-        id: "ai-5",
-        title: "Retrieval-Augmented Systems",
-        issuer: "SYSTEMS EPSILON",
-        logo: LogoEpsilon,
-        rotation: "-rotate-1 sm:-rotate-[1.2deg]",
-      },
-    ],
-  },
-  {
-    name: "Engineering",
-    items: [
-      {
-        id: "eng-1",
-        title: "Advanced Data Structures",
-        issuer: "ACADEMY BETA",
-        logo: LogoBeta,
-        rotation: "rotate-1 sm:rotate-[0.8deg]",
-      },
-      {
-        id: "eng-2",
-        title: "Distributed Architecture Lead",
-        issuer: "INSTITUTE GAMMA",
-        logo: LogoGamma,
-        rotation: "-rotate-1 sm:-rotate-[1.4deg]",
-      },
-      {
-        id: "eng-3",
-        title: "Relational Query Specialist",
-        issuer: "REGISTRY DELTA",
-        logo: LogoDelta,
-        rotation: "rotate-2 sm:rotate-[1deg]",
-      },
-      {
-        id: "eng-4",
-        title: "Systems Programming Core",
-        issuer: "PLATFORM ALPHA",
-        logo: LogoAlpha,
-        rotation: "-rotate-1 sm:-rotate-[0.8deg]",
-      },
-      {
-        id: "eng-5",
-        title: "Functional Language Expert",
-        issuer: "SYSTEMS EPSILON",
-        logo: LogoEpsilon,
-        rotation: "rotate-1 sm:rotate-[1.5deg]",
-      },
-    ],
-  },
-  {
-    name: "Cloud & DevOps",
-    items: [
-      {
-        id: "cloud-1",
-        title: "Cloud Operations Architect",
-        issuer: "REGISTRY DELTA",
-        logo: LogoDelta,
-        rotation: "-rotate-1 sm:-rotate-[1deg]",
-      },
-      {
-        id: "cloud-2",
-        title: "Kubernetes Deployments Core",
-        issuer: "PLATFORM ALPHA",
-        logo: LogoAlpha,
-        rotation: "rotate-1 sm:rotate-[1.4deg]",
-      },
-    ],
-  },
-  {
-    name: "Security",
-    items: [
-      {
-        id: "sec-1",
-        title: "Cybersecurity Fundamentals",
-        issuer: "INSTITUTE GAMMA",
-        logo: LogoGamma,
-        rotation: "-rotate-1 sm:-rotate-[1.6deg]",
-      },
-      {
-        id: "sec-2",
-        title: "Network Security Officer",
-        issuer: "ACADEMY BETA",
-        logo: LogoBeta,
-        rotation: "rotate-1 sm:rotate-[1deg]",
-      },
-    ],
-  },
-  {
-    name: "Project Management",
-    items: [
-      {
-        id: "pm-1",
-        title: "Agile Operations Professional",
-        issuer: "PLATFORM ALPHA",
-        logo: LogoAlpha,
-        rotation: "rotate-1 sm:rotate-[0.8deg]",
-      },
-      {
-        id: "pm-2",
-        title: "Product Lifecycle Management",
-        issuer: "REGISTRY DELTA",
-        logo: LogoDelta,
-        rotation: "-rotate-1 sm:-rotate-[1.2deg]",
-      },
-    ],
-  },
-];
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -212,14 +64,155 @@ const sectionVariants = {
 } as const;
 
 export default function CertificationsPage() {
+  const { isAdmin } = useAdmin();
+  const [certs, setCerts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Add Cert Modal States
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newIssuer, setNewIssuer] = useState("");
+  const [newCategory, setNewCategory] = useState("AI");
+  const [newUrl, setNewUrl] = useState("");
+
+  const fetchCerts = async () => {
+    try {
+      const { data } = await supabase
+        .from("portfolio_certifications")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (data) setCerts(data);
+    } catch (err) {
+      console.error("Failed to fetch certs:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCerts();
+  }, []);
+
+  const handleUpdateField = async (id: string, field: string, value: string) => {
+    const { error } = await supabase
+      .from("portfolio_certifications")
+      .update({ [field]: value })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Failed to update certification field:", error);
+    } else {
+      setCerts((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, [field]: value } : c))
+      );
+    }
+  };
+
+  const handleDeleteCert = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this certification?")) return;
+    const { error } = await supabase
+      .from("portfolio_certifications")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Failed to delete certification:", error);
+    } else {
+      setCerts((prev) => prev.filter((c) => c.id !== id));
+    }
+  };
+
+  const handleAddCert = async () => {
+    if (!newTitle.trim() || !newIssuer.trim()) return;
+
+    const iconTypes = ["alpha", "beta", "gamma", "delta", "epsilon"];
+    const randomIcon = iconTypes[Math.floor(Math.random() * iconTypes.length)];
+    const rotations = [
+      "-rotate-1 sm:-rotate-[1.5deg]",
+      "rotate-1 sm:rotate-[1.2deg]",
+      "-rotate-1 sm:-rotate-[0.8deg]",
+      "rotate-2 sm:rotate-[1.8deg]",
+      "-rotate-1 sm:-rotate-[1.2deg]"
+    ];
+    const randomRotation = rotations[Math.floor(Math.random() * rotations.length)];
+
+    const { data, error } = await supabase
+      .from("portfolio_certifications")
+      .insert({
+        title: newTitle,
+        issuer: newIssuer,
+        category: newCategory,
+        verify_url: newUrl,
+        icon_type: randomIcon,
+        rotation: randomRotation
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Failed to add certification:", error);
+    } else if (data) {
+      setCerts((prev) => [...prev, data]);
+      setShowAddModal(false);
+      setNewTitle("");
+      setNewIssuer("");
+      setNewCategory("AI");
+      setNewUrl("");
+    }
+  };
+
+  const renderLogo = (type: string) => {
+    switch (type) {
+      case "beta":
+        return <LogoBeta />;
+      case "gamma":
+        return <LogoGamma />;
+      case "delta":
+        return <LogoDelta />;
+      case "epsilon":
+        return <LogoEpsilon />;
+      default:
+        return <LogoAlpha />;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center font-mono text-xs text-[#555] lowercase animate-pulse">
+        retrieving credential registry...
+      </div>
+    );
+  }
+
+  // Group certifications by category client-side
+  const categoriesMap = certs.reduce((acc: any, cert: any) => {
+    const cat = cert.category || "Uncategorized";
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(cert);
+    return acc;
+  }, {});
+
+  const categories = Object.keys(categoriesMap);
+
   return (
     <div className="px-6 py-12 md:p-16 max-w-5xl mx-auto space-y-16">
       {/* Page Header */}
-      <div>
-        <h1 className="font-mono text-4xl text-[#e5e5e5] mb-6 lowercase tracking-tight">certifications</h1>
-        <p className="font-sans text-[15px] leading-relaxed text-[#888888] max-w-2xl">
-          Credentials across AI, cloud, engineering, and project management — each verifiable at its source.
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="font-mono text-4xl text-[#e5e5e5] mb-6 lowercase tracking-tight">certifications</h1>
+          <p className="font-sans text-[15px] leading-relaxed text-[#888888] max-w-2xl">
+            Credentials across AI, cloud, engineering, and project management — each verifiable at its source.
+          </p>
+        </div>
+        {isAdmin && (
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="bg-[#0f0f0f] border border-[#1a1a1a] rounded px-3 py-1.5 font-mono text-xs text-[#e5e5e5] hover:border-[#333333] transition-colors cursor-pointer select-none"
+          >
+            [+ add certification]
+          </button>
+        )}
       </div>
 
       {/* Certification Sections */}
@@ -229,53 +222,152 @@ export default function CertificationsPage() {
         animate="visible"
         className="space-y-12"
       >
-        {certificationCategories.map((category) => (
+        {categories.map((catName) => (
           <motion.div 
-            key={category.name} 
+            key={catName} 
             variants={sectionVariants}
             className="space-y-6"
           >
             {/* Category Name */}
             <h2 className="font-mono text-[11px] text-[#555] uppercase tracking-widest">
-              {category.name}
+              {catName}
             </h2>
 
             {/* Cards Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-              {category.items.map((cert) => {
-                const Logo = cert.logo;
-                return (
-                  <a
-                    key={cert.id}
-                    href="#"
-                    className={`block relative bg-[#0a0a0a]/40 border border-[#1a1a1a] rounded-2xl p-5 text-center flex flex-col justify-between h-[180px] shadow-lg hover:rotate-0 hover:scale-105 hover:z-30 hover:border-[#333] hover:bg-[#0c0c0c] transition-all duration-300 ease-out decoration-none group ${cert.rotation}`}
-                  >
-                    {/* Issuer Logo */}
-                    <div>
-                      <Logo />
-                    </div>
+              {categoriesMap[catName].map((cert: any) => (
+                <div
+                  key={cert.id}
+                  className={`block relative bg-[#0f0f0f] border border-[#1a1a1a] rounded-2xl p-5 text-center flex flex-col justify-between h-[210px] shadow-lg hover:rotate-0 hover:scale-105 hover:z-30 hover:border-[#333] hover:bg-[#0c0c0c] transition-all duration-300 ease-out decoration-none group ${cert.rotation}`}
+                >
+                  {/* Issuer Logo */}
+                  <div>
+                    {renderLogo(cert.icon_type)}
+                  </div>
 
-                    {/* Title & Issuer Info */}
-                    <div className="flex-1 flex flex-col justify-center my-2 select-none">
-                      <h3 className="font-sans text-xs font-bold text-[#e5e5e5] leading-snug line-clamp-2">
-                        {cert.title}
-                      </h3>
-                      <span className="font-mono text-[8px] text-[#555] uppercase tracking-wider mt-1 group-hover:text-[#888] transition-colors">
-                        {cert.issuer}
+                  {/* Title & Issuer Info */}
+                  <div className="flex-1 flex flex-col justify-center my-2 select-none">
+                    <h3 className="font-sans text-xs font-bold text-[#e5e5e5] leading-snug line-clamp-2">
+                      <EditableText
+                        text={cert.title}
+                        isAdmin={isAdmin}
+                        onSave={(val) => handleUpdateField(cert.id, "title", val)}
+                      />
+                    </h3>
+                    <span className="font-mono text-[8px] text-[#555] uppercase tracking-wider mt-1 group-hover:text-[#888] transition-colors">
+                      <EditableText
+                        text={cert.issuer}
+                        isAdmin={isAdmin}
+                        onSave={(val) => handleUpdateField(cert.id, "issuer", val)}
+                      />
+                    </span>
+                    {isAdmin && (
+                      <span className="font-mono text-[7px] text-[#444] uppercase tracking-wider mt-1">
+                        Category:{" "}
+                        <EditableText
+                          text={cert.category}
+                          isAdmin={isAdmin}
+                          onSave={(val) => handleUpdateField(cert.id, "category", val)}
+                        />
                       </span>
-                    </div>
+                    )}
+                  </div>
 
-                    {/* Verify Link */}
-                    <div className="font-mono text-[9px] uppercase tracking-widest text-[#555] group-hover:text-[#e5e5e5] transition-colors select-none mt-auto">
-                      ⟨ verify ⟩
-                    </div>
-                  </a>
-                );
-              })}
+                  {/* Verify Link or Delete */}
+                  <div className="flex flex-col gap-1 items-center mt-auto font-mono text-[9px]">
+                    {isAdmin ? (
+                      <button
+                        onClick={() => handleDeleteCert(cert.id)}
+                        className="text-red-500/60 hover:text-red-500 transition-colors select-none cursor-pointer"
+                      >
+                        [delete]
+                      </button>
+                    ) : (
+                      <a
+                        href={cert.verify_url || "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="uppercase tracking-widest text-[#555] group-hover:text-[#e5e5e5] transition-colors select-none"
+                      >
+                        ⟨ verify ⟩
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </motion.div>
         ))}
       </motion.div>
+
+      {/* Add Certification Modal Popup */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-6 w-full max-w-md font-mono space-y-4 shadow-2xl">
+            <div className="text-sm text-[#555] uppercase tracking-wider border-b border-[#1a1a1a] pb-2">add new certification</div>
+            
+            <div className="space-y-1">
+              <label className="text-[10px] text-[#555] uppercase">title</label>
+              <input
+                type="text"
+                required
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                className="w-full bg-[#0c0c0e] border border-[#222] rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#444]"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] text-[#555] uppercase">issuer</label>
+              <input
+                type="text"
+                required
+                value={newIssuer}
+                onChange={(e) => setNewIssuer(e.target.value)}
+                className="w-full bg-[#0c0c0e] border border-[#222] rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#444]"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] text-[#555] uppercase">category (e.g. AI, Cloud, DevOps)</label>
+              <input
+                type="text"
+                required
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                className="w-full bg-[#0c0c0e] border border-[#222] rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#444]"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] text-[#555] uppercase">verification URL</label>
+              <input
+                type="text"
+                value={newUrl}
+                onChange={(e) => setNewUrl(e.target.value)}
+                className="w-full bg-[#0c0c0e] border border-[#222] rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#444]"
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                className="px-3 py-1.5 border border-[#222] rounded text-xs text-[#888] hover:text-[#e5e5e5] transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAddCert}
+                className="px-3 py-1.5 bg-[#e5e5e5] text-black font-semibold rounded text-xs hover:bg-white transition-colors cursor-pointer"
+              >
+                Add Certification
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
