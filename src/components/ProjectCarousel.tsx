@@ -26,7 +26,6 @@ export const ProjectCarousel = ({ projects }: { projects: ProjectType[] }) => {
             <ProjectCard
               key={project.title}
               project={project}
-              index={i}
               isActive={i === activeIndex}
               position={position}
               onClick={() => setActiveIndex(i)}

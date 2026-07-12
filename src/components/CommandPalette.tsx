@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const CommandPalette = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {

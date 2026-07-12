@@ -3,6 +3,27 @@
 :root {
   --background: #0a0a0a;
   --foreground: #e5e5e5;
+  --card-bg: #0f0f0f;
+  --card-inner: #141414;
+  --bg-hover: #1a1a1a;
+  --card-border: #1a1a1a;
+  --border-hover: #333333;
+  --text-muted: #888888;
+  --text-darker: #555555;
+  --font-inter: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-ibm-plex-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.light {
+  --background: #f5f5f7;
+  --foreground: #1d1d1f;
+  --card-bg: #ffffff;
+  --card-inner: #f5f5f7;
+  --bg-hover: #e8e8ed;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.16);
+  --text-muted: #86868b;
+  --text-darker: #b5b5b9;
 }
 
 @theme inline {
@@ -15,4 +36,123 @@
 body {
   background: var(--background);
   color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ─── Light Mode Overrides for Tailwind's Arbitrary Color Classes ─── */
+.light .bg-\[\#0a0a0a\] {
+  background-color: var(--background) !important;
+}
+
+.light .bg-\[\#0f0f0f\] {
+  background-color: var(--card-bg) !important;
+}
+
+.light .bg-\[\#141414\] {
+  background-color: var(--card-inner) !important;
+}
+
+.light .bg-\[\#1a1a1a\] {
+  background-color: var(--bg-hover) !important;
+}
+
+.light .bg-\[\#0c0c0c\] {
+  background-color: var(--card-inner) !important;
+}
+
+.light .bg-\[\#0a0a0a\]\/80 {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.light .bg-\[\#0a0a0a\]\/90 {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.light .border-\[\#1a1a1a\] {
+  border-color: var(--card-border) !important;
+}
+
+.light .border-\[\#333333\] {
+  border-color: var(--border-hover) !important;
+}
+
+.light .text-\[\#e5e5e5\] {
+  color: var(--foreground) !important;
+}
+
+.light .text-\[\#888888\] {
+  color: var(--text-muted) !important;
+}
+
+.light .text-\[\#555555\] {
+  color: var(--text-darker) !important;
+}
+
+/* ─── View Transition API Styles ─── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+  will-change: clip-path, transform;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+.theme-transitioning::view-transition-new(root) {
+  animation: clipPathReveal 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes clipPathReveal {
+  from {
+    clip-path: circle(0% at var(--reveal-x, 0px) var(--reveal-y, 0px));
+  }
+  to {
+    clip-path: circle(150% at var(--reveal-x, 0px) var(--reveal-y, 0px));
+  }
+}
+
+/* ─── Hardware-Accelerated Dynamic CSS Halftone Shader ─── */
+.halftone-container {
+  position: relative;
+  filter: contrast(180) grayscale(100%);
+  background-color: #fff;
+  overflow: hidden;
+  transition: filter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.halftone-container img {
+  mix-blend-mode: multiply;
+  filter: brightness(1.1) contrast(1.1);
+  transition: filter 0.5s cubic-bezier(0.16, 1, 0.3, 1), mix-blend-mode 0.5s ease;
+}
+
+.halftone-dot-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at center, #000 15%, #fff 85%);
+  background-size: 3.5px 3.5px; /* Tighter pitch spacing for high detail */
+  mix-blend-mode: screen;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Interactive Hover effect: Fades back to full color cleanly */
+.halftone-container:hover {
+  filter: contrast(1) grayscale(0%);
+}
+
+.halftone-container:hover img {
+  mix-blend-mode: normal;
+  filter: brightness(1) contrast(1);
+}
+
+.halftone-container:hover .halftone-dot-pattern {
+  opacity: 0;
 }

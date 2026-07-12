@@ -47,9 +47,9 @@ export async function getGitHubCommits() {
 
     // Map GitHub data into our 52x7 intensity array (0 to 4)
     // GitHub provides exact commit counts. We'll map them to an intensity level.
-    const mappedWeeks = weeks.slice(-52).map((week: any) => {
+    const mappedWeeks = weeks.slice(-52).map((week: { contributionDays: { contributionCount: number }[] }) => {
       // Pad to 7 days if the week is incomplete (e.g. current week)
-      const days = week.contributionDays.map((day: any) => {
+      const days = week.contributionDays.map((day: { contributionCount: number }) => {
         const count = day.contributionCount;
         if (count === 0) return 0;
         if (count <= 2) return 1;

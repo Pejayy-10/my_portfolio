@@ -11,13 +11,12 @@ export interface ProjectType {
 
 interface ProjectCardProps {
   project: ProjectType;
-  index: number;
   isActive: boolean;
   position: "left" | "center" | "right" | "hidden";
   onClick: () => void;
 }
 
-export const ProjectCard = ({ project, index, isActive, position, onClick }: ProjectCardProps) => {
+export const ProjectCard = ({ project, isActive, position, onClick }: ProjectCardProps) => {
   // Determine animation state based on logical position
   let animateState = { x: 0, y: 0, rotate: 0, scale: 1, zIndex: 0, opacity: 0 };
   
@@ -36,7 +35,7 @@ export const ProjectCard = ({ project, index, isActive, position, onClick }: Pro
       animate={animateState}
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
       onClick={onClick}
-      className={`absolute left-0 right-0 mx-auto bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 w-[320px] md:w-[400px] shadow-2xl ${isActive ? "cursor-default" : "cursor-pointer hover:border-[#333333]"}`}
+      className={`absolute left-0 right-0 mx-auto bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 w-[calc(100vw-48px)] max-w-[320px] md:w-[400px] shadow-2xl ${isActive ? "cursor-default" : "cursor-pointer hover:border-[#333333]"}`}
       style={{ originX: 0.5, originY: 1 }}
     >
       {/* Top Badges */}

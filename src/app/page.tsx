@@ -4,6 +4,7 @@ import { WorkHistory } from "@/components/WorkHistory";
 import { Certifications } from "@/components/Certifications";
 import { Recommendations } from "@/components/Recommendations";
 import { CommitGrid } from "@/components/CommitGrid";
+import { ProfileImage } from "@/components/ProfileImage";
 
 const mockProjects: ProjectType[] = [
   {
@@ -32,21 +33,15 @@ export default function Home() {
       {/* Section 01: Hero Intro & Metrics */}
       <section className="mb-32">
         <div className="flex flex-col md:flex-row gap-12 md:gap-16 mb-16 items-start">
-          {/* Profile Image Placeholder */}
-          <div className="w-48 h-48 md:w-72 md:h-72 shrink-0 bg-[#0f0f0f] border border-[#1a1a1a] rounded overflow-hidden relative group">
-            {/* Halftone / Dither pattern simulation overlay */}
-            <div className="absolute inset-0 opacity-20 pointer-events-none mix-blend-overlay" style={{ backgroundImage: 'radial-gradient(#888 1px, transparent 1px)', backgroundSize: '4px 4px' }}></div>
-            <div className="absolute inset-0 flex items-center justify-center text-[#333333] font-mono text-xs lowercase group-hover:text-[#555555] transition-colors">
-              [ image_placeholder ]
-            </div>
-          </div>
+          {/* Profile Image with Dynamic Halftone Shader */}
+          <ProfileImage />
 
           {/* Bio & Links */}
           <div className="flex-1 pt-2">
             <h1 className="font-mono text-4xl text-[#e5e5e5] mb-8 lowercase tracking-tight">Fran Peruso</h1>
             
             <p className="font-sans text-[15px] leading-relaxed text-[#888888] mb-6 max-w-xl">
-              I'm a software engineer and UI/UX designer. I build offline-first systems, multi-tenant SaaS applications, and modern digital ecosystems. Currently focused on deep cloud integration architectures and custom edge network infrastructures.
+              I&apos;m a software engineer and UI/UX designer. I build offline-first systems, multi-tenant SaaS applications, and modern digital ecosystems. Currently focused on deep cloud integration architectures and custom edge network infrastructures.
             </p>
             
             <p className="font-sans text-[15px] leading-relaxed text-[#888888] mb-12 max-w-xl">
@@ -76,7 +71,7 @@ export default function Home() {
               <div className="font-mono text-2xl text-[#e5e5e5] lowercase tracking-tight">4+ yrs</div>
               <svg className="w-3 h-3 text-[#333333] ml-1 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
             </div>
-            <div className="font-mono text-[10px] text-[#555555] lowercase mt-2 tracking-widest">DELIVERY</div>
+            <div className="font-mono text-[10px] text-[#555555] lowercase mt-2 tracking-widest">EXPERIENCE</div>
           </div>
           
           <div className="flex-1 md:border-r border-[#1a1a1a] border-b md:border-b-0 pb-6 md:pb-0 mb-6 md:mb-0 md:px-8">
@@ -92,15 +87,15 @@ export default function Home() {
               <div className="font-mono text-2xl text-[#e5e5e5] lowercase tracking-tight">10+</div>
               <svg className="w-3 h-3 text-[#333333] ml-1 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
             </div>
-            <div className="font-mono text-[10px] text-[#555555] lowercase mt-2 tracking-widest">ARCHITECTURES</div>
+            <div className="font-mono text-[10px] text-[#555555] lowercase mt-2 tracking-widest">PROJECTS</div>
           </div>
           
           <div className="flex-1 md:pl-8">
             <div className="flex items-start">
-              <div className="font-mono text-2xl text-[#e5e5e5] lowercase tracking-tight">ADZU</div>
+              <div className="font-mono text-2xl text-[#e5e5e5] lowercase tracking-tight">WMSU</div>
               <svg className="w-3 h-3 text-[#333333] ml-1 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
             </div>
-            <div className="font-mono text-[10px] text-[#555555] lowercase mt-2 tracking-widest">FOUNDATION</div>
+            <div className="font-mono text-[10px] text-[#555555] lowercase mt-2 tracking-widest">ALMA MATTER</div>
           </div>
         </div>
 
