@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { sanitize } from "@/lib/sanitize";
 
 interface EditableTextProps {
   text: string;
@@ -30,13 +31,14 @@ export const EditableText = ({
   }, [text]);
 
   const handleSave = async () => {
-    if (value === text) {
+    const sanitized = sanitize(value);
+    if (sanitized === text) {
       setIsEditing(false);
       return;
     }
     setIsLoading(true);
     try {
-      await onSave(value);
+      await onSave(sanitized);
       setIsEditing(false);
     } catch (err) {
       console.error("Failed to save text:", err);

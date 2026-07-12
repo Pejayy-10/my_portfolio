@@ -1,18 +1,50 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useAdmin } from "@/hooks/useAdmin";
+
+const MAX_ATTEMPTS = 3;
+const LOCKOUT_SECONDS = 60;
 
 export const CommandPalette = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const { logout } = useAdmin();
   const [query, setQuery] = useState("");
   const [view, setView] = useState<"search" | "login">("search");
-  const [email, setEmail] = useState("frandilbertperuso@gmail.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Brute-force lockout state
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutRemaining, setLockoutRemaining] = useState(0);
+  const lockoutTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const isLockedOut = lockoutRemaining > 0;
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (lockoutTimerRef.current) clearInterval(lockoutTimerRef.current);
+    };
+  }, []);
+
+  const startLockout = () => {
+    setLockoutRemaining(LOCKOUT_SECONDS);
+    lockoutTimerRef.current = setInterval(() => {
+      setLockoutRemaining((prev) => {
+        if (prev <= 1) {
+          clearInterval(lockoutTimerRef.current!);
+          lockoutTimerRef.current = null;
+          setFailedAttempts(0);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   // Listen for Esc key
   useEffect(() => {
@@ -64,19 +96,30 @@ export const CommandPalette = ({ isOpen, onClose }: { isOpen: boolean; onClose: 
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLockedOut) return;
+
     setStatus("loading");
     setErrorMessage("");
-    
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
+      const newAttempts = failedAttempts + 1;
+      setFailedAttempts(newAttempts);
       setStatus("error");
-      setErrorMessage(error.message);
+
+      if (newAttempts >= MAX_ATTEMPTS) {
+        setErrorMessage(`Too many failed attempts. Locked out for ${LOCKOUT_SECONDS}s.`);
+        startLockout();
+      } else {
+        setErrorMessage(`${error.message} (${MAX_ATTEMPTS - newAttempts} attempt${MAX_ATTEMPTS - newAttempts === 1 ? "" : "s"} left)`);
+      }
     } else {
       setStatus("success");
+      setFailedAttempts(0);
       setTimeout(() => {
         onClose();
       }, 1000);
@@ -139,8 +182,8 @@ export const CommandPalette = ({ isOpen, onClose }: { isOpen: boolean; onClose: 
                 <form onSubmit={handleLoginSubmit} className="p-6 space-y-4 font-mono">
                   <div className="flex items-center justify-between border-b border-[#1a1a1a] pb-3 mb-2">
                     <span className="text-xs text-[#555] uppercase tracking-wider">admin authentication</span>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => setView("search")}
                       className="text-xs text-[#555] hover:text-[#888] cursor-pointer"
                     >
@@ -151,6 +194,14 @@ export const CommandPalette = ({ isOpen, onClose }: { isOpen: boolean; onClose: 
                   {status === "success" ? (
                     <div className="py-8 text-center text-sm text-green-500">
                       Authentication successful. Console loaded.
+                    </div>
+                  ) : isLockedOut ? (
+                    <div className="py-8 text-center space-y-3">
+                      <div className="text-sm text-[#ea4335]">Too many failed attempts.</div>
+                      <div className="text-2xl font-bold text-[#e5e5e5] font-mono tabular-nums">
+                        {lockoutRemaining}s
+                      </div>
+                      <div className="text-xs text-[#555]">Locked out. Try again after the timer.</div>
                     </div>
                   ) : (
                     <>
@@ -192,7 +243,7 @@ export const CommandPalette = ({ isOpen, onClose }: { isOpen: boolean; onClose: 
                         </button>
                         <button
                           type="submit"
-                          disabled={status === "loading"}
+                          disabled={status === "loading" || isLockedOut}
                           className="px-4 py-2 bg-[#e5e5e5] text-black font-semibold rounded text-xs hover:bg-white transition-colors cursor-pointer disabled:opacity-50"
                         >
                           {status === "loading" ? "Verifying..." : "Login"}
