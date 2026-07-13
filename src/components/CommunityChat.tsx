@@ -71,7 +71,7 @@ const FemaleSprite = () => (
   </svg>
 );
 
-export const CommunityChat = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+export const CommunityChat = ({ isOpen, onClose, isAdmin = false }: { isOpen: boolean; onClose: () => void; isAdmin?: boolean }) => {
   const [step, setStep] = useState<"join" | "chat">("join");
 
   // User Info
@@ -279,6 +279,18 @@ export const CommunityChat = ({ isOpen, onClose }: { isOpen: boolean; onClose: (
     }
   };
 
+  // ─── Admin: Clear all chat messages ───
+  const [isClearing, setIsClearing] = useState(false);
+  const handleClearChat = async () => {
+    if (!isAdmin) return;
+    const confirmed = window.confirm("Delete all chat messages? This cannot be undone.");
+    if (!confirmed) return;
+    setIsClearing(true);
+    const { error } = await supabase.from("messages").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    if (!error) setMessages([]);
+    setIsClearing(false);
+  };
+
   // ─── Time formatting ───
   const timeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
@@ -396,6 +408,15 @@ export const CommunityChat = ({ isOpen, onClose }: { isOpen: boolean; onClose: (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
                 {messages.length} messages
+                {isAdmin && (
+                  <button
+                    onClick={handleClearChat}
+                    disabled={isClearing || messages.length === 0}
+                    className="ml-auto font-mono text-[10px] text-[#ea4335] hover:text-red-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed border border-[#2a1a1a] hover:border-red-900 rounded px-2 py-0.5"
+                  >
+                    {isClearing ? "clearing..." : "clear logs"}
+                  </button>
+                )}
               </div>
 
               <div className="flex-1 overflow-y-auto space-y-5 pr-2 mb-4" style={{ scrollbarWidth: "thin", scrollbarColor: "#1a1a1a transparent" }}>

@@ -5,6 +5,7 @@ import { Sidebar, useLiveViewerCount } from "./Sidebar";
 import { CommandPalette } from "./CommandPalette";
 import { CommunityChat } from "./CommunityChat";
 import { TypingTest } from "./TypingTest";
+import { useAdmin } from "@/hooks/useAdmin";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const ClientLayout = ({ children }: { children: React.ReactNode }) => {
@@ -13,6 +14,7 @@ export const ClientLayout = ({ children }: { children: React.ReactNode }) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isTypingTestOpen, setIsTypingTestOpen] = useState(false);
   const viewerCount = useLiveViewerCount();
+  const { isAdmin } = useAdmin();
   const [theme, setTheme] = useState<"system" | "light" | "dark">("dark");
 
   // Load from localStorage on mount
@@ -182,7 +184,8 @@ export const ClientLayout = ({ children }: { children: React.ReactNode }) => {
       />
       <CommunityChat 
         isOpen={isChatOpen} 
-        onClose={() => setIsChatOpen(false)} 
+        onClose={() => setIsChatOpen(false)}
+        isAdmin={isAdmin}
       />
       <TypingTest 
         isOpen={isTypingTestOpen} 

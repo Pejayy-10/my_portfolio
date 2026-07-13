@@ -37,8 +37,8 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
-      // Supabase API origin
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+      // Supabase API origin + ipapi.co for location detection
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://ipapi.co",
       "img-src 'self' data: blob:",
       "frame-ancestors 'none'",
       "base-uri 'self'",

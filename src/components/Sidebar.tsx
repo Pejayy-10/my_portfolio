@@ -21,7 +21,8 @@ export const useLiveViewerCount = () => {
   const idRef = useRef(generateId());
 
   useEffect(() => {
-    const room = supabase.channel(`portfolio_visitors_${idRef.current}`, {
+    // All visitors must join the SAME channel name to see each other
+    const room = supabase.channel("portfolio_viewers", {
       config: { presence: { key: idRef.current } },
     });
 
