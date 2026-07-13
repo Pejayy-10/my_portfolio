@@ -72,6 +72,14 @@ const FemaleSprite = () => (
 );
 
 export const CommunityChat = ({ isOpen, onClose, isAdmin = false }: { isOpen: boolean; onClose: () => void; isAdmin?: boolean }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
   const [step, setStep] = useState<"join" | "chat">("join");
 
   // User Info
@@ -291,6 +299,14 @@ export const CommunityChat = ({ isOpen, onClose, isAdmin = false }: { isOpen: bo
     setIsClearing(false);
   };
 
+  // ─── Mobile D-pad movement helper ───
+  const movePlayer = (dx: number, dy: number) => {
+    setMyPos((prev) => ({
+      x: Math.max(0, Math.min(19, prev.x + dx)),
+      y: Math.max(0, Math.min(19, prev.y + dy)),
+    }));
+  };
+
   // ─── Time formatting ───
   const timeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
@@ -469,14 +485,14 @@ export const CommunityChat = ({ isOpen, onClose, isAdmin = false }: { isOpen: bo
             </div>
 
             {/* ─── Right: Multiplayer Canvas ─── */}
-            <div className="w-full md:flex-1 flex flex-col items-stretch md:items-end h-[350px] md:h-auto shrink-0 md:shrink">
+            <div className="w-full md:flex-1 flex flex-col items-stretch md:items-end h-[320px] md:h-auto shrink-0 md:shrink">
               <div className="font-mono text-[11px] text-[#555] lowercase mb-4 flex items-center gap-3">
                 <span className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                   {Object.keys(players).length} online
                 </span>
                 <span>·</span>
-                <span>wasd / arrows to move</span>
+                <span>{isMobile ? "d-pad to move" : "wasd / arrows to move"}</span>
               </div>
 
               <div
@@ -533,17 +549,52 @@ export const CommunityChat = ({ isOpen, onClose, isAdmin = false }: { isOpen: bo
                   ))}
               </div>
 
-              {/* WASD visual hint */}
-              <div className="flex gap-1 mt-4 opacity-40">
-                <div className="flex flex-col items-center gap-1">
-                  <div className="w-6 h-6 rounded border border-[#333] flex items-center justify-center font-mono text-[9px] text-[#666]">W</div>
+              {/* ─── Mobile D-pad / Desktop WASD hint ─── */}
+              {isMobile ? (
+                <div className="flex flex-col items-center gap-1 mt-3 select-none">
+                  {/* Up */}
+                  <button
+                    onPointerDown={(e) => { e.preventDefault(); movePlayer(0, -1); }}
+                    className="w-12 h-12 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center text-[#888] active:bg-[#2a2a2a] active:scale-95 transition-all touch-none"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7"/></svg>
+                  </button>
                   <div className="flex gap-1">
-                    <div className="w-6 h-6 rounded border border-[#333] flex items-center justify-center font-mono text-[9px] text-[#666]">A</div>
-                    <div className="w-6 h-6 rounded border border-[#333] flex items-center justify-center font-mono text-[9px] text-[#666]">S</div>
-                    <div className="w-6 h-6 rounded border border-[#333] flex items-center justify-center font-mono text-[9px] text-[#666]">D</div>
+                    {/* Left */}
+                    <button
+                      onPointerDown={(e) => { e.preventDefault(); movePlayer(-1, 0); }}
+                      className="w-12 h-12 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center text-[#888] active:bg-[#2a2a2a] active:scale-95 transition-all touch-none"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    {/* Down */}
+                    <button
+                      onPointerDown={(e) => { e.preventDefault(); movePlayer(0, 1); }}
+                      className="w-12 h-12 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center text-[#888] active:bg-[#2a2a2a] active:scale-95 transition-all touch-none"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    {/* Right */}
+                    <button
+                      onPointerDown={(e) => { e.preventDefault(); movePlayer(1, 0); }}
+                      className="w-12 h-12 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center text-[#888] active:bg-[#2a2a2a] active:scale-95 transition-all touch-none"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+                    </button>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex gap-1 mt-4 opacity-40">
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-6 h-6 rounded border border-[#333] flex items-center justify-center font-mono text-[9px] text-[#666]">W</div>
+                    <div className="flex gap-1">
+                      <div className="w-6 h-6 rounded border border-[#333] flex items-center justify-center font-mono text-[9px] text-[#666]">A</div>
+                      <div className="w-6 h-6 rounded border border-[#333] flex items-center justify-center font-mono text-[9px] text-[#666]">S</div>
+                      <div className="w-6 h-6 rounded border border-[#333] flex items-center justify-center font-mono text-[9px] text-[#666]">D</div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
