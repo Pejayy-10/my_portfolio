@@ -10,38 +10,39 @@ import { EditableText } from "@/components/EditableText";
 // Custom Abstract Geometric Icons for Template/Placeholder Projects
 const IconAlpha = () => (
   <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0 rounded-2xl">
-    <rect width="64" height="64" rx="16" fill="#1f1f1f"/>
-    <rect x="1" y="1" width="62" height="62" rx="15" stroke="#2c2c2c" strokeWidth="2"/>
-    <circle cx="20" cy="20" r="4" fill="#555555" />
-    <circle cx="44" cy="20" r="4" fill="#555555" />
-    <circle cx="20" cy="44" r="4" fill="#555555" />
-    <circle cx="44" cy="44" r="4" fill="#555555" />
-    <line x1="20" y1="20" x2="44" y2="20" stroke="#333333" strokeWidth="2"/>
-    <line x1="20" y1="20" x2="20" y2="44" stroke="#333333" strokeWidth="2"/>
-    <line x1="44" y1="20" x2="44" y2="44" stroke="#333333" strokeWidth="2"/>
-    <line x1="20" y1="44" x2="44" y2="44" stroke="#333333" strokeWidth="2"/>
-    <line x1="20" y1="20" x2="44" y2="44" stroke="#888888" strokeWidth="2" strokeDasharray="4 4"/>
+    <rect width="64" height="64" rx="16" className="fill-[#1f1f1f]"/>
+    <rect x="1" y="1" width="62" height="62" rx="15" className="stroke-[#2c2c2c]" strokeWidth="2"/>
+    <circle cx="20" cy="20" r="4" className="fill-[#555555]" />
+    <circle cx="44" cy="20" r="4" className="fill-[#555555]" />
+    <circle cx="20" cy="44" r="4" className="fill-[#555555]" />
+    <circle cx="44" cy="44" r="4" className="fill-[#555555]" />
+    <line x1="20" y1="20" x2="44" y2="20" className="stroke-[#333333]" strokeWidth="2"/>
+    <line x1="20" y1="20" x2="20" y2="44" className="stroke-[#333333]" strokeWidth="2"/>
+    <line x1="44" y1="20" x2="44" y2="44" className="stroke-[#333333]" strokeWidth="2"/>
+    <line x1="20" y1="44" x2="44" y2="44" className="stroke-[#333333]" strokeWidth="2"/>
+    <line x1="20" y1="20" x2="44" y2="44" className="stroke-[#888888]" strokeWidth="2" strokeDasharray="4 4"/>
   </svg>
 );
 
 const IconBeta = () => (
   <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0 rounded-2xl">
-    <rect width="64" height="64" rx="16" fill="#1f1f1f"/>
-    <rect x="1" y="1" width="62" height="62" rx="15" stroke="#2c2c2c" strokeWidth="2"/>
-    <circle cx="32" cy="32" r="18" stroke="#333333" strokeWidth="2" />
-    <circle cx="32" cy="32" r="10" stroke="#555555" strokeWidth="2" />
-    <circle cx="32" cy="32" r="4" fill="#888888" />
+    <rect width="64" height="64" rx="16" className="fill-[#1f1f1f]"/>
+    <rect x="1" y="1" width="62" height="62" rx="15" className="stroke-[#2c2c2c]" strokeWidth="2"/>
+    <circle cx="32" cy="32" r="18" className="stroke-[#333333]" strokeWidth="2" />
+    <circle cx="32" cy="32" r="10" className="stroke-[#555555]" strokeWidth="2" />
+    <circle cx="32" cy="32" r="4" className="fill-[#888888]" />
   </svg>
 );
 
 const IconGamma = () => (
   <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0 rounded-2xl">
-    <rect width="64" height="64" rx="16" fill="#1f1f1f"/>
-    <rect x="1" y="1" width="62" height="62" rx="15" stroke="#2c2c2c" strokeWidth="2"/>
-    <path d="M18 20L30 32L18 44" stroke="#555555" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-    <line x1="34" y1="44" x2="48" y2="44" stroke="#888888" strokeWidth="3" strokeLinecap="round"/>
+    <rect width="64" height="64" rx="16" className="fill-[#1f1f1f]"/>
+    <rect x="1" y="1" width="62" height="62" rx="15" className="stroke-[#2c2c2c]" strokeWidth="2"/>
+    <path d="M18 20L30 32L18 44" className="stroke-[#555555]" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+    <line x1="34" y1="44" x2="48" y2="44" className="stroke-[#888888]" strokeWidth="3" strokeLinecap="round"/>
   </svg>
 );
+
 
 const AppStoreBadge = ({ url }: { url?: string }) => {
   const isPending = !url || url.trim() === "" || url.trim() === "#";
